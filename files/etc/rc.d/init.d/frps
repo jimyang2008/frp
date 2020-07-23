@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# chkconfig: 2345 55 25
+NAME=frps
+FRP_DIR=/usr/local/bin
+DAEMON=$FRP_DIR/$NAME
+CONFIG=/etc/${NAME}.ini
+PIDFILE=/var/run/$NAME
+LOG=/var/log/${NAME}.log
+
+[ -x "$DAEMON" ] || exit 0
+
+case "$1" in
+    start)
+        echo "Starting $NAME..."
+        $DAEMON -c $CONFIG > $LOG 2>&1 &
+        pid=$!
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && echo $pid > $PIDFILE
+        ;;
+    stop)
+        echo "Stopping $NAME..."
+        if [ -e $PIDFILE ]; then
+            kill $(cat $PIDFILE)
+            rm -f $PIDFILE
+        fi
+        ;;
+    status)
+        if [ -e $PIDFILE ]; then
+            pid=$(cat $PIDFILE)
+            echo "$NAME is running($pid)..."
+        else
+            echo "$NAME is stopped"
+        fi
+        ;;
+    restart)
+        $0 stop && sleep 2 && $0 start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+exit 0
