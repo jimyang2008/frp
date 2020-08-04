@@ -28,7 +28,8 @@ sudo rsync -rlptv files/ /
 if type chkconfig; then
     sudo chkconfig --add frps
 else
-    sudo systemctl status frpc
+    sudo systemctl enable frps
+    sudo systemctl start frps
     sudo systemctl status frps
 fi
 )
